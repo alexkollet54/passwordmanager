@@ -1,79 +1,88 @@
 import pickle
-
-
-
-
-
-
-# storing all your user data
-user_list = []
-
-
-# class to create and store users
-class User:
-    def __init__(self, username, password, website):
-        self.username = username
-        self.password = password
-        self.website = website
-        
-
-    # function to save user
-    def save_user(self):
-        user_list.append({
-            "username": self.username,
-            "password": self.password,
-            "website": self.website,
-        })
-
-# function to create a new user
-def create_user():
-    username = input("Enter username: ")
-    password = input("Enter password: ")
-    website = input("Enter website: ")
-
-    new_user = User(username, password, website)
-    new_user.save_user()
+import tkinter as tk
+import tkinter.messagebox
+ 
+def save_account():
+    # Get the user input
+    username = username_entry.get()
+    password = password_entry.get()
+    website = website_entry.get()
     
-    print(f"user data {username} for {website} saved!") 
-    return new_user
+    
+    
+    tkinter.messagebox.showinfo("Account saved", "Account is Saved!" )
 
+    # Check if the username and password are not empty strings
+    if not username or not password:
+        tkinter.messagebox.showerror("Error", "Please enter a username and password")
+        return
 
-# storing all your account data within a list in a pickle file
-def save_file_user(user):
+    # Save the account information
     try:
         with open("data.pickle", "wb") as file:
-            pickle.dump(user_list, file,protocol=pickle.HIGHEST_PROTOCOL)
+            pickle.dump({
+            "username": username,
+            "password": password,
+            "website": website,
+        }, file, protocol=pickle.HIGHEST_PROTOCOL)
     except Exception as e:
-        print("Error during pickling object (Possibly unsupported):", e)
-
-def load_object(filename):
+        tkinter.messagebox.showerror("Error", e)
+    
+    tkinter.messagebox.showinfo("Account saved",f"Username: {username}" + 
+                                f"Password: {password}" + 
+                                f"Website: {website}" )
+        
+def view_accounts():
+    # Load the saved account information
     try:
-        with open(filename, "rb") as f:
-            return pickle.load(f)
-    except Exception as ex:
-        print("Error during unpickling object (Possibly unsupported):", ex)
-            
+        with open("data.pickle", "rb") as file:
+            accounts = pickle.load(file)
+    except Exception as e:
+        tkinter.messagebox.showerror("Error (unpickle)", e)
+        
+        
+    # Display the saved account information
+    for account in accounts:
+        tkinter.messagebox.showinfo("Account saved",
+                                  f"Username: {int(account['username'])}" +
+                                  f"Password: {account['password']}" +
+                                  f"Website: {account['website']}")
 
 
-home = input('Type "add account" if you wish to save your account information: ')
 
-def add_account():
-    create_user()
-    save_file_user(user_list)
-
-def recursive():
-    while home == 'add account':
-        add_account()
-        break
-
-recursive()
-
-inp = input('type "1" to view all your saved accounts, or "2" to save another account: ')
+# Create a Tkinter window
+root = tk.Tk()
+root.title("Account Manager")
 
 
-if inp == '1':
-    heem = load_object('data.pickle')
-    print(heem)
+# Create a text box to collect user input
+username_entry = tk.Entry(root)
+password_entry = tk.Entry(root)
+website_entry = tk.Entry(root)
 
-elif inp == '2':
-    recursive()
+
+# Create buttons to save the account information and view the saved accounts
+save_button = tk.Button(root, text="Save Account", command=save_account)
+view_button = tk.Button(root, text="View Accounts", command=view_accounts)
+
+
+# Pack the widgets into the window
+username_entry.pack()
+password_entry.pack()
+website_entry.pack()
+save_button.pack()
+view_button.pack()
+
+
+# Start the Tkinter loop
+root.mainloop()
+
+
+
+
+
+
+
+
+
+

@@ -1,2 +1,2 @@
 # passwordmanager
-This python script will be able to let you save every username and password you want to add onto a list and be stored into a pickle file
+This python script will organize your password. Using the Tkinter UI, you enter your username/email, password and the website and it will save your account. if you want to view the saved data you can click the view account button.
