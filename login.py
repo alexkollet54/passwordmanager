@@ -1,87 +1,80 @@
-import pickle
 import tkinter as tk
+import pickle
+import hashlib
 import tkinter.messagebox
- 
-def save_account():
-    # Get the user input
-    username = username_entry.get()
-    password = password_entry.get()
-    website = website_entry.get()
-    
-    
-    
-    tkinter.messagebox.showinfo("Account saved", "Account is Saved!" )
 
-    # Check if the username and password are not empty strings
-    if not username or not password:
-        tkinter.messagebox.showerror("Error", "Please enter a username and password")
-        return
 
-    # Save the account information
-    try:
-        with open("data.pickle", "wb") as file:
-            pickle.dump({
-            "username": username,
-            "password": password,
-            "website": website,
-        }, file, protocol=pickle.HIGHEST_PROTOCOL)
-    except Exception as e:
-        tkinter.messagebox.showerror("Error", e)
-    
-    tkinter.messagebox.showinfo("Account saved",f"Username: {username}" + 
-                                f"Password: {password}" + 
-                                f"Website: {website}" )
+class PasswordManager:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Password Manager")
         
-def view_accounts():
-    # Load the saved account information
-    try:
-        with open("data.pickle", "rb") as file:
-            accounts = pickle.load(file)
-    except Exception as e:
-        tkinter.messagebox.showerror("Error (unpickle)", e)
+        # username label
+        self.username_label = tk.Label(root, text="Username:")
+        self.username_label.pack()
+        self.username_entry = tk.Entry(root)
+        self.username_entry.pack()
         
+        # password label
+        self.password_label = tk.Label(root, text="Password:")
+        self.password_label.pack()
+        self.password_entry = tk.Entry(root, show="*")
+        self.password_entry.pack()
         
-    # Display the saved account information
-    for account in accounts:
-        tkinter.messagebox.showinfo("Account saved",
-                                  f"Username: {int(account['username'])}" +
-                                  f"Password: {account['password']}" +
-                                  f"Website: {account['website']}")
+        # website label
+        self.website_label = tk.Label(root, text="Website:")
+        self.website_label.pack()
+        self.website_entry = tk.Entry(root)
+        self.website_entry.pack()
+        
+        # save button
+        self.save_button = tk.Button(root, text="Save Account", command=self.save_account)
+        self.save_button.pack()
+        
+        # view account button
+        self.view_button = tk.Button(root, text="View Account", command=self.view_account)
+        self.view_button.pack()
+        
+        # accounts stored in a list
+        self.accounts = []
+        
+    def save_account(self):
+        username = self.username_entry.get()
+        password = self.password_entry.get()
+        website = self.website_entry.get()
+        
+        # hash the password
+        hashed_password = hashlib.sha256(password.encode()).hexdigest()  # Hash the password
+        
+        # storing the account in a dictionary and append it into the list
+        account = {'username': username, 'password': hashed_password, 'website': website}
+        self.accounts.append(account)
+        
+        with open('accounts.pickle', 'wb') as f:
+            pickle.dump(self.accounts, f)
+        
+        self.clear_entries()
+    
+    def view_account(self):
+        try:
+            with open('accounts.pickle', 'rb') as f:
+                self.accounts = pickle.load(f)
+            
+            for account in self.accounts:
+                tkinter.messagebox.showinfo("account saved", f"Username: {account['username']}, Website: {account['website']}, Password: ******** (hashed)")
+        except FileNotFoundError:
+            print("No accounts saved yet.")
+    
+    # clears the entries after saving
+    def clear_entries(self):
+        self.username_entry.delete(0, 'end')
+        self.password_entry.delete(0, 'end')
+        self.website_entry.delete(0, 'end')
 
-
-
-# Create a Tkinter window
-root = tk.Tk()
-root.title("Account Manager")
-
-
-# Create a text box to collect user input
-username_entry = tk.Entry(root)
-password_entry = tk.Entry(root)
-website_entry = tk.Entry(root)
-
-
-# Create buttons to save the account information and view the saved accounts
-save_button = tk.Button(root, text="Save Account", command=save_account)
-view_button = tk.Button(root, text="View Accounts", command=view_accounts)
-
-
-# Pack the widgets into the window
-username_entry.pack()
-password_entry.pack()
-website_entry.pack()
-save_button.pack()
-view_button.pack()
-
-
-# Start the Tkinter loop
-root.mainloop()
-
-
-
-
-
-
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = PasswordManager(root)
+    root.mainloop()
 
 
 
