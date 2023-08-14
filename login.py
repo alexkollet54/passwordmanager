@@ -38,17 +38,27 @@ class PasswordManager:
         # accounts stored in a list
         self.accounts = []
         
+        # unhashed accounts 
+        self.unhashed_accounts = []
+        
     def save_account(self):
         username = self.username_entry.get()
         password = self.password_entry.get()
         website = self.website_entry.get()
         
+        unhashed = password
         # hash the password
         hashed_password = hashlib.sha256(password.encode()).hexdigest()  # Hash the password
         
         # storing the account in a dictionary and append it into the list
         account = {'username': username, 'password': hashed_password, 'website': website}
+        unhashed_pw = {'username': username, 'password': unhashed, 'website': website}
         self.accounts.append(account)
+        self.unhashed_accounts.append(unhashed_pw)
+        
+        # storing the dictionaries in a pickle file
+        with open('unhashed.pickle', 'wb') as r:
+            pickle.dump(self.unhashed_accounts, r)
         
         with open('accounts.pickle', 'wb') as f:
             pickle.dump(self.accounts, f)
@@ -62,6 +72,13 @@ class PasswordManager:
             
             for account in self.accounts:
                 tkinter.messagebox.showinfo("account saved", f"Username: {account['username']}, Website: {account['website']}, Password: ******** (hashed)")
+            
+            with open('unhashed.pickle', 'rb') as r:
+                self.unhashed_accounts = pickle.load(r)
+            
+            for acc in self.unhashed_accounts:
+                tkinter.messagebox.showinfo("account saved", f"Username: {acc['username']}, Website: {acc['website']}, Password: {acc['password']}")
+            
         except FileNotFoundError:
             print("No accounts saved yet.")
     
