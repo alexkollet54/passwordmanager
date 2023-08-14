@@ -65,7 +65,7 @@ class PasswordManager:
         
         self.clear_entries()
     
-    def view_account(self):
+    def view_account(self): 
         try:
             with open('accounts.pickle', 'rb') as f:
                 self.accounts = pickle.load(f)
@@ -87,6 +87,8 @@ class PasswordManager:
         self.username_entry.delete(0, 'end')
         self.password_entry.delete(0, 'end')
         self.website_entry.delete(0, 'end')
+    
+    
 
 if __name__ == "__main__":
     root = tk.Tk()
